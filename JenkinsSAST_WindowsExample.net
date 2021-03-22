@@ -1,0 +1,25 @@
+//SCAN CENTRAL  
+	stage ('FortifyScanWindows')  { 
+            when {
+                expression { params.runFortifyScan }
+            }
+
+	    environment {
+			FORTIFY_BUILD_ID = ">XXXXX" //THIS NEED TO CHANGE TO CORRECT PARAMETERS
+			FORTIFY_TOKEN = "XXXXXXXXXXXX" //THIS NEED TO CHANGE TO CORRECT PARAMETERS
+			FORTIFY_SSC = "YourURL"
+			FORTIFY_VERSION = "XXXXX" //UNIQUENUMBER_IMPORTANT_THIS NEED TO CHANGE TO CORRECT PARAMETERS
+			FORTIFY_PROJECTID = "XXXX" //CASESENSITIVE_THIS NEED TO CHANGE TO CORRECT PARAMETERS 
+			FORTIFY_VERSIONID = "XXX" //CASESENSITIVE_THIS NEED TO CHANGE TO CORRECT PARAMETERS
+			DOTNET_VER = "3.0"
+			LIBDIRS = "XXX"
+	    }
+	    
+	    steps {
+				bat "fortifyupdate -acceptSSLCertificate"
+				bat "sourceanalyzer -b ${FORTIFY_BUILD_ID} ${FORTIFY_DIR} -clean"
+                		bat "sourceanalyzer -b ${FORTIFY_BUILD_ID} ${FORTIFY_DIR} -dotnet-version ${DOTNET_VER} -libdirs ${LIBDIRS}"
+                		bat "sourceanalyzer -b ${FORTIFY_BUILD_ID} -export-build-session fortify.mbs"             
+                		bat "scancentral -sscurl ${FORTIFY_SSC} -ssctoken ${FORTIFY_TOKEN} start -upload -versionid ${FORTIFY_VERSION} -uptoken ${FORTIFY_TOKEN} -b ${FORTIFY_BUILD_ID} -scan -autoheap -mt"
+            }	
+	}   // stage scancentral finish
