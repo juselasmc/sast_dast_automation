@@ -1,0 +1,22 @@
+//WebInspect Base Pipeline Script
+	stage ('WebInspect')  {
+            when {
+                expression { params.runDynamicScan }
+            }
+
+	    environment {
+			WIE_APIURL = "https://YOURWIEURL/WIE/REST/api/v2/scans/"
+			WIE_TOKEN = "XXXXXXX" //TOKEN PER APP
+			WIE_SNAME = "SCANNAME"
+			WIE_SCANID = "SCANID"
+			WIE_TEMPLATEID = "TEMPLATEID"
+			WIE_SITEID = "SITEID"
+	    }
+	    
+	    steps {
+		//Template Creation that will be return a TemplateID * This step can be omitted if a template is already created
+				sh "curl --location --request POST '${WIE_APIURL}/${WIE_SCANID}/scanTemplate' --header 'Authorization: FORTIFYTOKEN ${WIE_TOKEN}' "
+		//Scan Creation from template created
+		curl --location --request POST '${WIE_APIURL}' --header 'Authorization: FORTIFYTOKEN ${WIE_TOKEN}' --header 'Content-Type: application/json' --data-raw '{"name": "${WIE_SNAME}","projectVersion": {"siteId": "${WIE_SITEID"}}, "scanTemplateId": "${WIE_TEMPLATEID}"}'
+            }	
+	}   // stage FortifyDynamic finish
