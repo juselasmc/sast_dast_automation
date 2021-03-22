@@ -1,0 +1,23 @@
+//SCAN CENTRAL
+	stage ('FortifyScan')  { 
+            when {
+                expression { params.runFortifyScan }
+            }
+
+	    environment {
+			FORTIFY_BUILD_ID = "XXX" //THIS NEED TO CHANGE TO CORRECT PARAMETERS
+			FORTIFY_TOKEN = "XXXXXXXXXXXX" //THIS NEED TO CHANGE TO CORRECT PARAMETERS
+			FORTIFY_SSC = "https://yoursscurl"
+			FORTIFY_VERSION = "XXXXX" //UNIQUENUMBER_IMPORTANT_THIS NEED TO CHANGE TO CORRECT PARAMETERS
+			FORTIFY_PROJECTID = "XXX" //CASESENSITIVE_THIS NEED TO CHANGE TO CORRECT PARAMETERS 
+			FORTIFY_VERSIONID = "XXX" //CASESENSITIVE_THIS NEED TO CHANGE TO CORRECT PARAMETERS
+	    }
+	    
+	    steps {
+				sh "fortifyupdate -acceptSSLCertificate"
+				sh "sourceanalyzer -b ${FORTIFY_BUILD_ID} ${FORTIFY_DIR} -clean"
+                sh "sourceanalyzer  -b ${FORTIFY_BUILD_ID} ${FORTIFY_DIR}"
+                sh "sourceanalyzer -b ${FORTIFY_BUILD_ID} -export-build-session fortify.mbs"             
+                sh "scancentral -sscurl ${FORTIFY_SSC} -ssctoken ${FORTIFY_TOKEN} start -upload -versionid ${FORTIFY_VERSION} -uptoken ${FORTIFY_TOKEN} -b ${FORTIFY_BUILD_ID} -scan -autoheap -mt"
+            }	
+	}   // stage scancentral finish
